@@ -248,7 +248,3 @@ npx prisma generate
 2. Build: `npm run build`
 3. Serve the `dist` folder with a static server
 
-
-## Author
-
-Created for Banksforte Technologies assessment.
