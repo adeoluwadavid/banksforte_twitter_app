@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tweets         Tweet[]
+  sharedTweets   TweetShare[]
+
+  @@map("users")
+}
+
+model Tweet {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  authorId  String   @map("author_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  author       User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  sharedWith   TweetShare[]
+
+  @@map("tweets")
+}
+
+model TweetShare {
+  id             String   @id @default(uuid())
+  tweetId        String   @map("tweet_id")
+  sharedWithId   String   @map("shared_with_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  tweet          Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  sharedWithUser User     @relation(fields: [sharedWithId], references: [id], onDelete: Cascade)
+
+  @@unique([tweetId, sharedWithId])
+  @@map("tweet_shares")
+}
